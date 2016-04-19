@@ -11,6 +11,12 @@ public class GameController : MonoBehaviour {
 	public GameObject pickup;
 	public GameObject player;
 	public GameObject playerExplosion;
+	public GameObject hazard;
+
+	public Vector3 spawnValues;
+	public int hazardCount;
+	public float spawnWait;
+	public float startWait;
 
 	public float maxZ;
 	public float maxX;
@@ -35,7 +41,7 @@ public class GameController : MonoBehaviour {
 
 	//Initilization... 
 	void Start () {
-
+		SpawnWaves();
 		gameover = false;
 		canbegin = true;
 
@@ -128,5 +134,21 @@ public class GameController : MonoBehaviour {
 		float xDifference = Mathf.Abs(player.transform.position.x - pickup.transform.position.x);
 		float yDifference = Mathf.Abs(player.transform.position.z - pickup.transform.position.z);
 		actualTimeLimit = (xDifference + yDifference)*difficultyFactor;
+	}
+
+	IEnumerator SpawnWaves(){
+		yield return new WaitForSeconds (startWait);
+		while (true)
+		{
+			for (int i = 0; i < hazardCount; i++)
+			{
+				Vector3 spawnPosition = new Vector3 (Random.Range (-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
+				Quaternion spawnRotation = Quaternion.identity;
+				Instantiate (hazard, spawnPosition, spawnRotation);
+				yield return new WaitForSeconds (spawnWait);
+
+			}
+		}
+
 	}
 }
