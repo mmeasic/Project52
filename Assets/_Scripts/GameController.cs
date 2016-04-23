@@ -11,12 +11,9 @@ public class GameController : MonoBehaviour {
 	public GameObject pickup;
 	public GameObject player;
 	public GameObject playerExplosion;
-	public GameObject hazard;
+	public GameObject asteroid;
 
-	public Vector3 spawnValues;
-	public int hazardCount;
-	public float spawnWait;
-	public float startWait;
+	public int MaxAsteroids;
 
 	public float maxZ;
 	public float maxX;
@@ -41,7 +38,6 @@ public class GameController : MonoBehaviour {
 
 	//Initilization... 
 	void Start () {
-		SpawnWaves();
 		gameover = false;
 		canbegin = true;
 
@@ -63,6 +59,7 @@ public class GameController : MonoBehaviour {
 		uiController.refreshTimer ((int) actualTimeLimit);
 		uiController.refreshPickupPosition ((int) pickupZ, (int) pickupX);
 
+		SpawnFirstWave();
 	}
 
 	//Each frame...
@@ -113,7 +110,6 @@ public class GameController : MonoBehaviour {
 		changePickUpPosition ();
 	}
 
-
 	private void changePickUpPosition () {
 
 		float newPickupX = Random.Range(minX,maxX);
@@ -136,19 +132,19 @@ public class GameController : MonoBehaviour {
 		actualTimeLimit = (xDifference + yDifference)*difficultyFactor;
 	}
 
-	IEnumerator SpawnWaves(){
-		yield return new WaitForSeconds (startWait);
-		while (true)
+	void SpawnFirstWave(){
+		for (int i = 0; i < MaxAsteroids; i++)
 		{
-			for (int i = 0; i < hazardCount; i++)
-			{
-				Vector3 spawnPosition = new Vector3 (Random.Range (-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
-				Quaternion spawnRotation = Quaternion.identity;
-				Instantiate (hazard, spawnPosition, spawnRotation);
-				yield return new WaitForSeconds (spawnWait);
+			float newAsteroidX = Random.Range(minX,maxX);
+			float newAsteroidZ = Random.Range(minZ,maxZ);
+			float inverterX = Random.value;
+			float inverterZ = Random.value;
+			if (inverterX < 0.5) newAsteroidX = -newAsteroidX;
+			if (inverterZ < 0.5) newAsteroidZ = -newAsteroidZ;
 
-			}
+			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, newAsteroidZ);
+			Quaternion spawnRotation = Quaternion.identity;
+			Instantiate (asteroid, spawnPosition, spawnRotation);
 		}
-
 	}
 }
