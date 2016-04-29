@@ -7,6 +7,8 @@ public class CollisionController : MonoBehaviour {
 
 	//Explosion of an asteroid. 
 	public GameObject explosion;
+	//Explosion of an asteroid with sound. 
+	public GameObject explosion_sound;
 
 	//Explosion of the player. 
 	public GameObject playerExplosion;
@@ -20,65 +22,70 @@ public class CollisionController : MonoBehaviour {
 		GameObject gameControllerObject = GameObject.FindGameObjectWithTag ("GameController");
 		if (gameControllerObject != null) {
 			gameController = gameControllerObject.GetComponent<GameController> ();
-		} else {
-			Debug.Log ("Cannot Find 'GameController' script");
 		}
 		GameObject playerControllerObject = GameObject.FindGameObjectWithTag ("Player");
 		if (playerControllerObject != null) {
 			playerController = playerControllerObject.GetComponent<PlayerController> ();
-		} else {
-			Debug.Log ("Cannot Find 'PlayerController' script");
 		}
 	}
 
 	//On Collision... 
-	void OnTriggerEnter(Collider other) 
-	{
+	void OnTriggerEnter(Collider other) {
 
-		if (other.tag == "Pickup" && gameObject.tag == "Player") {
-			gameController.getPickup ();
-		}
+		//PLAYER
+		if (gameObject.tag == "Player") {
 
-		if (other.tag == "Planet") {
-			if (gameObject.tag == "Player") {
-				//Destruction of the player.
-				Instantiate (playerExplosion, transform.position, transform.rotation);
-				Destroy (gameObject);
-
-				//Game over. 
-				gameController.Gameover ();
-			} else {
-				//Destruction of the asteroid.
-				Instantiate (explosion, transform.position, transform.rotation);
-				Destroy(gameObject);
+			//Case Pickup
+			if (other.tag == "Pickup") {
+				gameController.getPickup ();
 			}
-		}
-
-		//Collision with the asteroids...
-		if (other.tag == "Asteroid") {
-
-			//Destruction of the asteroid.
-			Instantiate (explosion, other.transform.position, other.transform.rotation);
-			Destroy(other.gameObject);
-
-			//We check if we have life left... 
-			if (gameObject.tag == "Player") {
+				
+			//Case Asteroid
+			if (other.tag == "Asteroid") {
+				destroyAsteroid(other, true);
 				if (playerController.checkLive (true)) {
-
-					//Destruction of the player.
-					Instantiate (playerExplosion, transform.position, transform.rotation);
-					Destroy (gameObject);
-
-					//Game over. 
-					gameController.Gameover ();
+					destroyPlayer ();
 				}
-			} else {
-				//Destruction of the asteroid.
-				Instantiate (explosion, transform.position, transform.rotation);
-				Destroy(gameObject);
 			}
-
+				
+			//Case Boundary and Planet
+			if (other.tag == "Boundary" || other.tag == "Planet") {
+				destroyPlayer ();
+			}
 		}
 
+		//ASTEROID
+		if (gameObject.tag == "Asteroid") {
+
+			//Case Asteroid
+			if (other.tag == "Asteroid") {
+				destroyAsteroid(other, false);
+				destroyAsteroid(GetComponent<Collider>(), false);
+			}
+
+			//Case Boundary and Planet
+			if (other.tag == "Boundary" || other.tag == "Planet") {
+				destroyAsteroid(GetComponent<Collider>(), false);
+			}
+		}
+	}
+
+	private void destroyPlayer() {
+		GameObject ex = (GameObject) Instantiate (playerExplosion, transform.position, transform.rotation);
+		ex.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
+		Destroy (gameObject);
+		gameController.Gameover ();
+	}
+
+	private void destroyAsteroid(Collider ob, bool sound) {
+		GameObject ex = null;
+
+		if (gameController != null) gameController.createAsteroid ();
+
+		if (sound) ex = (GameObject) Instantiate (explosion_sound, ob.transform.position, ob.transform.rotation);
+		if (!sound) ex = (GameObject) Instantiate (explosion, ob.transform.position, ob.transform.rotation);
+
+		ex.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
+		Destroy(ob.gameObject);
 	}
 }

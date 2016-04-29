@@ -30,8 +30,6 @@ public class PlayerController : MonoBehaviour
 		GameObject uiControllerObject = GameObject.FindGameObjectWithTag ("UIController");
 		if (uiControllerObject  != null) {
 			uiController = uiControllerObject.GetComponent<UIController> ();
-		} else {
-			Debug.Log ("Cannot Find 'UIController' script");
 		}
 
 		current_energy = max_energy;
