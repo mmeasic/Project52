@@ -12,10 +12,10 @@ public class GameController : MonoBehaviour {
 	public GameObject player;
 	public GameObject playerExplosion;
 	public GameObject asteroid1;
-	public GameObject asteroid2;
-	public GameObject asteroid3;
+
 
 	public int MaxAsteroids;
+	public int direction=1;
 
 	public float maxZ;
 	public float maxX;
@@ -35,6 +35,7 @@ public class GameController : MonoBehaviour {
 	private bool gameover;
 	//If true, we can begin the game. 
 	private bool canbegin;
+
 
 	private UIController uiController;
 
@@ -64,7 +65,8 @@ public class GameController : MonoBehaviour {
 
 	//Each frame...
 	void FixedUpdate () {
-
+		GameObject[] AsteroidCount;
+		AsteroidCount = GameObject.FindGameObjectsWithTag("Asteroid");
 		//Begin Game... 
 		if (canbegin && Input.GetKeyDown (KeyCode.B)) {
 			canbegin = false;
@@ -88,6 +90,10 @@ public class GameController : MonoBehaviour {
 
 		if (actualTimeLimit > 0.0f) actualTimeLimit = actualTimeLimit - timerReductionVelocity;
 		uiController.refreshTimer ((int) actualTimeLimit);
+		
+		if (MaxAsteroids > AsteroidCount.Length) {
+			createAsteroid ();
+		}
 	}
 
 	//Function called when the game ends due to conditions in other algorithms.
@@ -114,22 +120,31 @@ public class GameController : MonoBehaviour {
 	public void createAsteroid(){
 		float newAsteroidX = Random.Range(minX,maxX);
 		float newAsteroidZ = Random.Range(minZ,maxZ);
-		float inverterX = Random.value;
-		float inverterZ = Random.value;
-		if (inverterX < 0.5) newAsteroidX = -newAsteroidX;
-		if (inverterZ < 0.5) newAsteroidZ = -newAsteroidZ;
-
-		Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, newAsteroidZ);
-		Quaternion spawnRotation = Random.rotation;
 
 		GameObject ast = null;
-		float asteroid_type = (int) Random.Range(1,4);
 
-		if (asteroid_type == 1) ast = (GameObject) Instantiate (asteroid1, spawnPosition, spawnRotation); 
-		if (asteroid_type == 2) ast = (GameObject) Instantiate (asteroid2, spawnPosition, spawnRotation);
-		if (asteroid_type == 3) ast = (GameObject) Instantiate (asteroid3, spawnPosition, spawnRotation);
-
-		ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
+		direction = (int) Random.Range(1,5);
+		if (direction == 1) {
+			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(710,720));
+			Quaternion spawnRotation = Quaternion.identity;
+			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
+		} else if (direction == 2) {
+			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(-710,-720));
+			Quaternion spawnRotation = Quaternion.identity;
+			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
+		} else if (direction == 3) {
+			Vector3 spawnPosition = new Vector3 (Random.Range(-710,-720), 0.0f, newAsteroidZ);
+			Quaternion spawnRotation = Quaternion.identity;
+			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
+		} else if (direction == 4) {
+			Vector3 spawnPosition = new Vector3 (Random.Range(710,720), 0.0f, newAsteroidZ);
+			Quaternion spawnRotation = Quaternion.identity;
+			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
+		}
 	}
 
 	private void changePickUpPosition () {

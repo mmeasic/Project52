@@ -49,7 +49,8 @@ public class CollisionController : MonoBehaviour {
 			}
 				
 			//Case Boundary and Planet
-			if (other.tag == "Boundary" || other.tag == "Planet") {
+			//if (other.tag == "Boundary" || other.tag == "Planet") {
+			if (other.tag == "Planet") {
 				destroyPlayer ();
 			}
 		}
@@ -63,10 +64,15 @@ public class CollisionController : MonoBehaviour {
 				destroyAsteroid(GetComponent<Collider>(), false);
 			}
 
-			//Case Boundary and Planet
-			if (other.tag == "Boundary" || other.tag == "Planet") {
+			//Case Boundary and Planets
+			if (other.tag == "Planet") {
 				destroyAsteroid(GetComponent<Collider>(), false);
 			}
+
+			if (other.tag == "AsteroidBoundary") {
+				destroyAsteroid(GetComponent<Collider>(), false);
+			}
+
 		}
 	}
 
