@@ -10,15 +10,13 @@ public class UIController : MonoBehaviour {
 	public Text info_speed;
 	public Text score_number;
 	public Text timer_number;
-	public Text pickup_info;
-	public Text spaceship_info;
 	public Slider energy_slider;
 
-	//Camera UI
-	public Text info_camera;
+	//Game Over UI
+	public GameObject game_over_panel;
 
-	//Game UI
-	public Text game_info;
+	//Pause UI
+	public GameObject pause_panel;
 
 	public void refreshPlayerInfo (float current_energy, float current_number_of_lifes, float current_speed) {
 		info_energy.text = "Energy: " + ((int) current_energy).ToString() + "%";
@@ -27,29 +25,27 @@ public class UIController : MonoBehaviour {
 		energy_slider.normalizedValue = (((int) current_energy) / 100.0f);
 	}
 
-	public void refreshCameraInfo (string info) {
-		info_camera.text = info;
-	}
-
-	public void refreshGameInfo (string info) {
-		game_info.text = info;
-	}
-
 	public void refreshScore (int score) {
 		score_number.text = score.ToString();
 	}
 
-	public void refreshPickupPosition (int Z, int X) {
-		pickup_info.text = "Pickup (X,Z) = (" + X.ToString () + "," + Z.ToString () + ")"; 
-	}
-
-	public void refreshSpaceshipPosition (int Z, int X) {
-		spaceship_info.text = "Spaceship (X,Z) = (" + X.ToString () + "," + Z.ToString () + ")"; 
-	}
-
 	public void refreshTimer (int timer) {
-
 		timer_number.text = timer.ToString ();
+	}
 
+	public void showPausePanel () {
+		pause_panel.SetActive (true);
+	}
+
+	public void hidePausePanel () {
+		pause_panel.SetActive (false);
+	}
+
+	public void showGameOverPanel () {
+		game_over_panel.SetActive (true);
+	}
+
+	public void hideGameOverPanel () {
+		game_over_panel.SetActive (false);
 	}
 }

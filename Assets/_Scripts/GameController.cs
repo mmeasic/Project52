@@ -16,7 +16,6 @@ public class GameController : MonoBehaviour {
 	public GameObject asteroid3;
 
 	public int MaxAsteroids;
-	public int direction=1;
 
 	public float maxZ;
 	public float maxX;
@@ -25,28 +24,24 @@ public class GameController : MonoBehaviour {
 
 	public float timerReductionVelocity;
 	public float difficultyFactor;
-
-	private float pickupZ;
-	private float pickupX;
+	public int asteroid_direction;
 
 	private int actualScore;
 	private float actualTimeLimit;
+	private float normalTime;
 
 	//If true, the game is over. 
 	private bool gameover;
-	//If true, we can begin the game. 
-	private bool canbegin;
 
+	//If true, the game is paused. 
+	private bool gamepaused;
 
 	private UIController uiController;
 
 	//Initilization... 
 	void Start () {
 		gameover = false;
-		canbegin = true;
-
-		pickupX = pickup.transform.position.x;
-		pickupZ = pickup.transform.position.z;
+		normalTime = Time.timeScale;
 
 		GameObject uiControllerObject = GameObject.FindGameObjectWithTag ("UIController");
 		if (uiControllerObject  != null) {
@@ -56,55 +51,78 @@ public class GameController : MonoBehaviour {
 		actualScore = 0;
 		actualTimeLimit = 0;
 
-		uiController.refreshGameInfo ("Game ready to Begin, Press [B] to begin");
 		uiController.refreshScore (actualScore);
 		uiController.refreshTimer ((int) actualTimeLimit);
-		uiController.refreshPickupPosition ((int) pickupZ, (int) pickupX);
 
 		SpawnFirstWave();
 	}
 
 	//Each frame...
 	void FixedUpdate () {
+
+		//I have to put it here because it doesn't work in the start... 
+		if (pickup.transform.position == new Vector3 (0.0f,0.0f,0.0f)) changePickUpPosition();
+
+		//Reset Game... (TEMPORAL)
+		if (Input.GetKeyDown (KeyCode.R)) Resetgame ();
+
+		if (!gameover) {
+
+			//Pause Game...
+			if (Input.GetKeyDown (KeyCode.Escape)) PauseGame ();
+
+			if (actualTimeLimit < 1.0f) {
+				GameObject explosion = (GameObject)Instantiate (playerExplosion, player.transform.position, player.transform.rotation);
+				explosion.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
+				Destroy (player);
+				Gameover ();
+			} else {
+				actualTimeLimit = actualTimeLimit - timerReductionVelocity;
+			}
+
+			uiController.refreshTimer ((int) actualTimeLimit);
+		}
+
+
+
+		//Asteroid Generation
+
 		GameObject[] AsteroidCount;
 		AsteroidCount = GameObject.FindGameObjectsWithTag("Asteroid");
-		//Begin Game... 
-		if (canbegin && Input.GetKeyDown (KeyCode.B)) {
-			canbegin = false;
-			uiController.refreshGameInfo ("Playing...");
-			uiController.refreshScore (actualScore);
-			changePickUpPosition ();
+
+		for (int i = 0; i < (MaxAsteroids - AsteroidCount.Length); i++) {
+			createAsteroid (false);
 		}
 
-		//Reset Scene... 
-		if (gameover && Input.GetKeyDown (KeyCode.R)) {
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-			gameover = false;
-		}
-
-		if (!canbegin && !gameover && actualTimeLimit < 1.0f) {
-			GameObject explosion = (GameObject) Instantiate (playerExplosion, player.transform.position, player.transform.rotation);
-			explosion.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
-			Destroy (player);
-			Gameover ();
-		}
-
-		if (actualTimeLimit > 0.0f) actualTimeLimit = actualTimeLimit - timerReductionVelocity;
-		uiController.refreshTimer ((int) actualTimeLimit);
-		
-		if (MaxAsteroids > AsteroidCount.Length) {
-			for (int i=0;i<MaxAsteroids-AsteroidCount.Length;i++)
-			{
-			createAsteroid ();
-			}
-		}
 	}
 
 	//Function called when the game ends due to conditions in other algorithms.
 	public void Gameover () {
 		gameover = true;
-		SwitchCamera();
-		uiController.refreshGameInfo ("Game Over, Press [R] to reset");
+		uiController.showGameOverPanel ();
+		SwitchCamera ();
+	}
+
+	//Function called to pause the game. 
+	public void PauseGame () {
+		uiController.showPausePanel ();
+		Time.timeScale = 0.0f;
+	}
+
+	//Function called to continue the game. 
+	public void ContinueGame () {
+		uiController.hidePausePanel ();
+		Time.timeScale = normalTime;
+	}
+
+	//Function called when we want to reset the game.
+	public void Resetgame() {
+		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+	}
+
+	//Function called when we want to quit the game. 
+	public void Quitgame() {
+		Application.Quit ();
 	}
 
 	// Witch between the main camera and the secondary camera (Or Game Over Camera). 
@@ -121,44 +139,43 @@ public class GameController : MonoBehaviour {
 		changePickUpPosition ();
 	}
 		
-	public void createAsteroid(){
+	public void createAsteroid(bool first_wave){
 		float newAsteroidX = Random.Range(minX,maxX);
 		float newAsteroidZ = Random.Range(minZ,maxZ);
 
+		Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, newAsteroidZ);;
+		Quaternion spawnRotation = Random.rotation;
+
 		GameObject ast = null;
-		GameObject typeOfAsteroid = null;
-		float asteroid_type = (int)Random.Range (1, 4);
+		GameObject ast_type = null;
 
-		if (asteroid_type == 1) {
-			typeOfAsteroid = asteroid1;
-		} else if (asteroid_type == 2) {
-			typeOfAsteroid = asteroid2;
-		}else if(asteroid_type==3) {
-			typeOfAsteroid = asteroid3;
+		float asteroid_type = (int) Random.Range(1,4);
+
+		if (asteroid_type == 1) ast_type = asteroid1;
+		if (asteroid_type == 2) ast_type = asteroid2;
+		if (asteroid_type == 3) ast_type = asteroid3;
+
+		asteroid_direction = (int) Random.Range(1,5);
+
+		if (first_wave) {
+			float inverterX = Random.value;
+			float inverterZ = Random.value;
+			if (inverterX < 0.5) newAsteroidX = -newAsteroidX;
+			if (inverterZ < 0.5) newAsteroidZ = -newAsteroidZ;
+			spawnPosition = new Vector3 (newAsteroidX, 0.0f, newAsteroidZ);
+		} else {
+			if (asteroid_direction <= 1) spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(800,850));
+			if (asteroid_direction == 2) spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(-800,-850));
+			if (asteroid_direction == 3) spawnPosition = new Vector3 (Random.Range(-800,-850), 0.0f, newAsteroidZ);
+			if (asteroid_direction >= 4) spawnPosition = new Vector3 (Random.Range(800,850), 0.0f, newAsteroidZ);
 		}
 
-		direction = (int) Random.Range(1,5);
-		if (direction == 1) {
-			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(710,720));
-			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
-			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
-		} else if (direction == 2) {
-			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(-710,-720));
-			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
-			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
-		} else if (direction == 3) {
-			Vector3 spawnPosition = new Vector3 (Random.Range(-710,-720), 0.0f, newAsteroidZ);
-			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
-			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
-		} else if (direction == 4) {
-			Vector3 spawnPosition = new Vector3 (Random.Range(710,720), 0.0f, newAsteroidZ);
-			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
-			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
-		}
+		ast = (GameObject) Instantiate (ast_type, spawnPosition, spawnRotation);
+
+		float r = ((int) Random.Range (1, 20))/10;
+		ast.transform.localScale += new Vector3 (r, r, r);
+
+		ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
 	}
 
 	private void changePickUpPosition () {
@@ -172,11 +189,6 @@ public class GameController : MonoBehaviour {
 
 		pickup.transform.position = new Vector3 (newPickupX, 0.0f, newPickupZ);
 
-		pickupX = newPickupX;
-		pickupZ = newPickupZ;
-
-		uiController.refreshPickupPosition ((int) pickupZ, (int) pickupX);
-
 		//Set Timer
 		float xDifference = Mathf.Abs(player.transform.position.x - pickup.transform.position.x);
 		float yDifference = Mathf.Abs(player.transform.position.z - pickup.transform.position.z);
@@ -186,7 +198,7 @@ public class GameController : MonoBehaviour {
 	private void SpawnFirstWave(){
 		for (int i = 0; i < MaxAsteroids; i++)
 		{
-			createAsteroid ();
+			createAsteroid (true);
 		}
 	}
 

@@ -8,30 +8,15 @@ public class AsteroidMover : MonoBehaviour
 
     void Start()
     {
-				GameObject gameControllerObject = GameObject.FindGameObjectWithTag ("GameController");
-				if (gameControllerObject != null) {
-						gameController = gameControllerObject.GetComponent<GameController> ();
-				} else {
-						Debug.Log ("Cannot Find 'GameController' script");
-					}
+		GameObject gC = GameObject.FindGameObjectWithTag ("GameController");
+		if (gC != null) gameController = gC.GetComponent<GameController> ();
 
-				int dir = gameController.direction;
-				Rigidbody rb = GetComponent<Rigidbody> ();
-				//rb.velocity = transform.forward * speed;
-			//here should be switch case
-			
-				if (dir == 1) {
-						//from top
-						rb.velocity = new Vector3 (Random.Range (-2, 3), 0, Random.Range (-2, 0)) * speed;
-				} else if (dir == 2) {
-						//from bottom
-						rb.velocity = new Vector3 (Random.Range (-2, 3), 0, Random.Range (1, 3)) * speed;
-				} else if (dir == 3) {
-						//from left
-						rb.velocity = new Vector3 (Random.Range (-2, 0), 0, Random.Range (-2, 3)) * speed;
-				} else if (dir == 4) {
-						//from right
-						rb.velocity = new Vector3 (Random.Range (1, 3), 0, Random.Range (-2, 3)) * speed;
-				}
+		int dir = gameController.asteroid_direction;
+		Rigidbody rb = GetComponent<Rigidbody> ();
+
+		if (dir <= 1) rb.velocity = new Vector3 (Random.Range (-2, 3), 0.0f, Random.Range (-2, 0)) * speed;
+		if (dir == 2) rb.velocity = new Vector3 (Random.Range (-2, 3), 0.0f, Random.Range (1, 3)) * speed;
+		if (dir == 3) rb.velocity = new Vector3 (Random.Range (-2, 0), 0.0f, Random.Range (-2, 3)) * speed;
+		if (dir >= 4) rb.velocity = new Vector3 (Random.Range (1, 3), 0.0f, Random.Range (-2, 3)) * speed;
     }
 }

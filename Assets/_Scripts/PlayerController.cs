@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
 	public float deceleration_factor;
 	public float energy_consumption_factor;
 	public float energy_reload_factor;
+	public float tilt;
 	public int max_player_lifes;
 
 	//Spaceship effects
@@ -56,13 +57,15 @@ public class PlayerController : MonoBehaviour
 		//We define the rotation of the spaceship taking in account the rotation speed. 
 		transform.Rotate (0.0f, rotation_horizontal * rotation_speed, 0.0f);	
 
+		Vector3 tilt_movement = transform.eulerAngles = new Vector3 (0.0f, transform.eulerAngles.y, 0.0f);
+		if (rotation_horizontal > 0.0f) tilt_movement = new Vector3 (0.0f, transform.eulerAngles.y, tilt * (-rotation_horizontal));
+		if (rotation_horizontal < 0.0f) tilt_movement = new Vector3 (0.0f, transform.eulerAngles.y, -tilt * rotation_horizontal);
+
+		transform.eulerAngles = tilt_movement;
+
 		//Refreshing the information from Player IU.
 		uiController.refreshPlayerInfo (current_energy, current_number_of_lifes, current_speed);
-
-		//TEMPORAL FUNCTION
-		uiController.refreshSpaceshipPosition((int) transform.position.z, (int) transform.position.x);
 	}
-
 
 	private void acceleration_control () {
 
@@ -90,7 +93,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 	//We check the state of the live and reduces in one the number of lifes if we detected a collision. 
-	public bool checkLive (bool collision) {
+	public bool checkLiveAndChange (bool collision) {
 		
 		if (collision) current_number_of_lifes--;
 

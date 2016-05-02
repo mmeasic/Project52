@@ -43,14 +43,13 @@ public class CollisionController : MonoBehaviour {
 			//Case Asteroid
 			if (other.tag == "Asteroid") {
 				destroyAsteroid(other, true);
-				if (playerController.checkLive (true)) {
+				if (playerController.checkLiveAndChange (true)) {
 					destroyPlayer ();
 				}
 			}
 				
 			//Case Boundary and Planet
-			//if (other.tag == "Boundary" || other.tag == "Planet") {
-			if (other.tag == "Planet") {
+			if (other.tag == "Boundary" || other.tag == "Planet") {
 				destroyPlayer ();
 			}
 		}
@@ -64,15 +63,10 @@ public class CollisionController : MonoBehaviour {
 				destroyAsteroid(GetComponent<Collider>(), false);
 			}
 
-			//Case Boundary and Planets
-			if (other.tag == "Planet") {
+			//Case Boundary and Planet
+			if (other.tag == "Boundary_Asteroid" || other.tag == "Planet") {
 				destroyAsteroid(GetComponent<Collider>(), false);
 			}
-
-			if (other.tag == "AsteroidBoundary") {
-				destroyAsteroid(GetComponent<Collider>(), false);
-			}
-
 		}
 	}
 
@@ -93,5 +87,5 @@ public class CollisionController : MonoBehaviour {
 
 		ex.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
 		Destroy(ob.gameObject);
-}
+	}
 }
