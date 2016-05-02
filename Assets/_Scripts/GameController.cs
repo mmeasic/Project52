@@ -12,7 +12,8 @@ public class GameController : MonoBehaviour {
 	public GameObject player;
 	public GameObject playerExplosion;
 	public GameObject asteroid1;
-
+	public GameObject asteroid2;
+	public GameObject asteroid3;
 
 	public int MaxAsteroids;
 	public int direction=1;
@@ -92,7 +93,10 @@ public class GameController : MonoBehaviour {
 		uiController.refreshTimer ((int) actualTimeLimit);
 		
 		if (MaxAsteroids > AsteroidCount.Length) {
+			for (int i=0;i<MaxAsteroids-AsteroidCount.Length;i++)
+			{
 			createAsteroid ();
+			}
 		}
 	}
 
@@ -122,27 +126,37 @@ public class GameController : MonoBehaviour {
 		float newAsteroidZ = Random.Range(minZ,maxZ);
 
 		GameObject ast = null;
+		GameObject typeOfAsteroid = null;
+		float asteroid_type = (int)Random.Range (1, 4);
+
+		if (asteroid_type == 1) {
+			typeOfAsteroid = asteroid1;
+		} else if (asteroid_type == 2) {
+			typeOfAsteroid = asteroid2;
+		}else if(asteroid_type==3) {
+			typeOfAsteroid = asteroid3;
+		}
 
 		direction = (int) Random.Range(1,5);
 		if (direction == 1) {
 			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(710,720));
 			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
 			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
 		} else if (direction == 2) {
 			Vector3 spawnPosition = new Vector3 (newAsteroidX, 0.0f, Random.Range(-710,-720));
 			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
 			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
 		} else if (direction == 3) {
 			Vector3 spawnPosition = new Vector3 (Random.Range(-710,-720), 0.0f, newAsteroidZ);
 			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
 			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
 		} else if (direction == 4) {
 			Vector3 spawnPosition = new Vector3 (Random.Range(710,720), 0.0f, newAsteroidZ);
 			Quaternion spawnRotation = Quaternion.identity;
-			ast = (GameObject)Instantiate (asteroid1, spawnPosition, spawnRotation);
+			ast = (GameObject)Instantiate (typeOfAsteroid, spawnPosition, spawnRotation);
 			ast.transform.parent = GameObject.FindGameObjectWithTag ("Asteroids").transform;
 		}
 	}

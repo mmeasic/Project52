@@ -86,12 +86,12 @@ public class CollisionController : MonoBehaviour {
 	private void destroyAsteroid(Collider ob, bool sound) {
 		GameObject ex = null;
 
-		if (gameController != null) gameController.createAsteroid ();
+		//if (gameController != null) gameController.createAsteroid ();
 
 		if (sound) ex = (GameObject) Instantiate (explosion_sound, ob.transform.position, ob.transform.rotation);
 		if (!sound) ex = (GameObject) Instantiate (explosion, ob.transform.position, ob.transform.rotation);
 
 		ex.transform.parent = GameObject.FindGameObjectWithTag ("Explosions").transform;
 		Destroy(ob.gameObject);
-	}
+}
 }
