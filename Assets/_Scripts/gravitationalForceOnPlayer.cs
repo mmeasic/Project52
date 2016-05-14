@@ -59,6 +59,17 @@ public class gravitationalForceOnPlayer : MonoBehaviour {
 						+ PlanetaryForce (planet7, massPlanet7)
 						+ PlanetaryForce (planet8, massPlanet8);
 		rb.AddForce (planetaryForces);
+		if (gameObject.tag == "Player"){
+			if (Mathf.Abs (transform.position.x) > 700.0f) {
+				Vector3 temp = new Vector3 (Mathf.Sign(transform.position.x)*(-1.0f) / (800.0f - Mathf.Abs (transform.position.x)), 0.0f, 0.0f);
+				rb.AddForce (temp*10000);
+			}
+			if (Mathf.Abs (transform.position.z) > 700.0f) {
+				Vector3 temp = new Vector3 (0.0f, 0.0f, Mathf.Sign(transform.position.z)*(-1.0f) / (800.0f - Mathf.Abs (transform.position.z)));
+				rb.AddForce (temp*10000);
+			}
+		}
+
 		//print (planetaryForces);
 	}
 

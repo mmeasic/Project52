@@ -23,8 +23,9 @@ public class GameController : MonoBehaviour {
 	public float minX;
 
 	public float timerReductionVelocity;
-	public float difficultyFactor;
+	public float minimunTimeLimit;
 	public int asteroid_direction;
+	public int difficultyFactor;
 
 	private int actualScore;
 	private float actualTimeLimit;
@@ -42,6 +43,10 @@ public class GameController : MonoBehaviour {
 	void Start () {
 		gameover = false;
 		normalTime = Time.timeScale;
+
+		difficultyFactor = SimulationController.difficulty;
+
+		MaxAsteroids = (int) difficultyFactor * MaxAsteroids;
 
 		GameObject uiControllerObject = GameObject.FindGameObjectWithTag ("UIController");
 		if (uiControllerObject  != null) {
@@ -62,9 +67,6 @@ public class GameController : MonoBehaviour {
 
 		//I have to put it here because it doesn't work in the start... 
 		if (pickup.transform.position == new Vector3 (0.0f,0.0f,0.0f)) changePickUpPosition();
-
-		//Reset Game... (TEMPORAL)
-		if (Input.GetKeyDown (KeyCode.R)) Resetgame ();
 
 		if (!gameover) {
 
@@ -111,8 +113,15 @@ public class GameController : MonoBehaviour {
 
 	//Function called to continue the game. 
 	public void ContinueGame () {
+		GetComponent<AudioSource>().Play ();
 		uiController.hidePausePanel ();
 		Time.timeScale = normalTime;
+	}
+
+	//Function called when we want to return to the main screen.
+	public void Returnmainscreen() {
+		Time.timeScale = normalTime;
+		SceneManager.LoadScene("Animation", LoadSceneMode.Single);
 	}
 
 	//Function called when we want to reset the game.
@@ -134,7 +143,7 @@ public class GameController : MonoBehaviour {
 	}
 
 	public void getPickup () {
-		actualScore += (int) actualTimeLimit;
+		actualScore += (int) actualTimeLimit * difficultyFactor;
 		uiController.refreshScore (actualScore);
 		changePickUpPosition ();
 	}
@@ -192,7 +201,9 @@ public class GameController : MonoBehaviour {
 		//Set Timer
 		float xDifference = Mathf.Abs(player.transform.position.x - pickup.transform.position.x);
 		float yDifference = Mathf.Abs(player.transform.position.z - pickup.transform.position.z);
-		actualTimeLimit = (xDifference + yDifference)*difficultyFactor;
+		actualTimeLimit = (xDifference + yDifference)/(difficultyFactor*difficultyFactor);
+
+		if (actualTimeLimit < minimunTimeLimit) actualTimeLimit = minimunTimeLimit;
 	}
 
 	private void SpawnFirstWave(){
