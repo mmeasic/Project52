@@ -4,7 +4,8 @@ using System.Collections;
 public class AsteroidMover : MonoBehaviour
 {
     public float speed;
-	public float maxSpeed;
+
+	private float maxSpeed;
 	private GameController gameController;
 
 
@@ -14,6 +15,8 @@ public class AsteroidMover : MonoBehaviour
     {
 		GameObject gC = GameObject.FindGameObjectWithTag ("GameController");
 		if (gC != null) gameController = gC.GetComponent<GameController> ();
+
+		maxSpeed = gameController.difficultyFactor * 10.0f;
 
 		int dir = gameController.asteroid_direction;
 		rb = GetComponent<Rigidbody> ();
